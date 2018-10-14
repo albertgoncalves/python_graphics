@@ -28,6 +28,10 @@ def random_start(bounds_dist):
     return random_loc(bounds_dist), random_loc(bounds_dist)
 
 
+# def smudge(val):
+#     return val + (val * (0.075 * (random.random() - 0.5)))
+
+
 def main():
 
     def init_screen():
@@ -55,13 +59,14 @@ def main():
         boundary.hideturtle()
         turtle.update()
 
-    def create_player_object(coords, color, shape):
+    def create_player_object(coords, shape, color='white'):
         player_object = turtle.Turtle()
         player_object.color(color)
         player_object.shape(shape)
         player_object.penup()
         player_object.speed(0)
         player_object.setpos(*coords)
+        player_object.right(random.randint(0, 360))
         return player_object
 
     def listen_arrowkeys(player):
@@ -72,41 +77,51 @@ def main():
         turtle.onkey(    decrease_speed, 'Down' )
 
     def increase_speed():
-        global speed
-        if speed < 4:
-            speed += 1
+        global player_speed
+        if player_speed < 4:
+            player_speed += 1
 
     def decrease_speed():
-        global speed
-        if speed > 1:
-            speed -= 1
+        global player_speed
+        if player_speed > 1:
+            player_speed -= 1
 
     def end_loop():
         global loop
         loop = False
 
-    global speed; speed = 1
+    def check_bounds(player_object, bounds_dist):
+        return ( (player_object.xcor() >  bounds_dist)
+               | (player_object.xcor() < -bounds_dist)
+               | (player_object.ycor() >  bounds_dist)
+               | (player_object.ycor() < -bounds_dist)
+               )
+
+    global player_speed; player_speed = 1
     global loop ; loop  = True
     bounds_dist = 275
 
     init_screen()
     draw_boundary(bounds_dist)
-    player = create_player_object(random_start(bounds_dist), 'white', 'square')
-    goal   = create_player_object(random_start(bounds_dist), 'white', 'circle')
-
-    listen_arrowkeys(player)
+    player = create_player_object(random_start(bounds_dist), 'triangle')
+    goal   = create_player_object(random_start(bounds_dist), 'circle')
 
     while loop:
-        player.forward(speed)
+        listen_arrowkeys(player)
 
-        if (player.xcor() > bounds_dist) | (player.xcor() < -bounds_dist):
+        player.forward(player_speed)
+        goal.forward(4)
+
+        if check_bounds(player, bounds_dist):
             player.right(180)
 
-        if (player.ycor() > bounds_dist) | (player.ycor() < -bounds_dist):
-            player.right(180)
+        if check_bounds(goal, bounds_dist):
+            goal.right(180)
 
         if distance(player, goal) < 10:
-            loop = False
+            goal.setpos(*random_start(bounds_dist))
+            goal.right(random.randint(0, 360))
+            # loop = False
 
         turtle.update()
 
