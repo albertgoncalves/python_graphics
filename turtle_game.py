@@ -39,7 +39,6 @@ def main():
 
         wn = turtle.Screen()
         wn.bgcolor('black')
-
         wn.listen()
         wn.onkeypress(end_loop, 'q')
 
@@ -97,31 +96,36 @@ def main():
                | (player_object.ycor() < -bounds_dist)
                )
 
+    def create_goal():
+        return create_player_object(random_start(bounds_safe), 'circle')
+
     global player_speed; player_speed = 1
-    global loop ; loop  = True
+    global loop        ; loop         = True
     bounds_dist = 275
+    bounds_safe = int(bounds_dist * 0.65)
+    n_goals     = 4
+    goal_speed  = 3
 
     init_screen()
     draw_boundary(bounds_dist)
-    player = create_player_object(random_start(bounds_dist), 'triangle')
-    goal   = create_player_object(random_start(bounds_dist), 'circle')
+    player = create_player_object(random_start(bounds_safe), 'triangle')
+    goals  = list(map(lambda _: create_goal(), list(range(n_goals))))
 
     while loop:
+        player.forward(player_speed)
         listen_arrowkeys(player)
 
-        player.forward(player_speed)
-        goal.forward(4)
+        for player_object in [player] + goals:
+            if check_bounds(player_object, bounds_dist):
+                player_object.right(180)
 
-        if check_bounds(player, bounds_dist):
-            player.right(180)
+        for goal in goals:
+            goal.forward(goal_speed)
 
-        if check_bounds(goal, bounds_dist):
-            goal.right(180)
-
-        if distance(player, goal) < 10:
-            goal.setpos(*random_start(bounds_dist))
-            goal.right(random.randint(0, 360))
-            # loop = False
+            if distance(player, goal) < 10:
+                goal.setpos(*random_start(bounds_safe))
+                goal.right(random.randint(0, 360))
+                # loop = False
 
         turtle.update()
 
