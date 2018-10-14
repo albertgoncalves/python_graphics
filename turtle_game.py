@@ -14,6 +14,10 @@ def turn_right(player):
     return lambda: player.right(30)
 
 
+def set_heading(player, heading):
+    return lambda: (player.setheading(heading), player.forward(10))
+
+
 def distance(turtle_a, turtle_b):
     x = turtle_a.xcor() - turtle_b.xcor()
     y = turtle_a.ycor() - turtle_b.ycor()
@@ -70,10 +74,16 @@ def main():
 
     def listen_arrowkeys(player):
         turtle.listen()
+
         turtle.onkey( turn_left(player), 'Left' )
         turtle.onkey(turn_right(player), 'Right')
         turtle.onkey(    increase_speed, 'Up'   )
         turtle.onkey(    decrease_speed, 'Down' )
+
+        turtle.onkey(set_heading(player,   0), 'd')
+        turtle.onkey(set_heading(player, 180), 'a')
+        turtle.onkey(set_heading(player,  90), 'w')
+        turtle.onkey(set_heading(player, 270), 's')
 
     def increase_speed():
         global player_speed
@@ -82,7 +92,7 @@ def main():
 
     def decrease_speed():
         global player_speed
-        if player_speed > 1:
+        if player_speed > 0:
             player_speed -= 1
 
     def end_loop():
@@ -99,7 +109,7 @@ def main():
     def create_goal():
         return create_player_object(random_start(bounds_safe), 'circle')
 
-    global player_speed; player_speed = 1
+    global player_speed; player_speed = 0
     global loop        ; loop         = True
     bounds_dist = 275
     bounds_safe = int(bounds_dist * 0.65)
