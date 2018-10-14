@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import math
 import turtle
-
-import numpy as np
 
 
 def turn_left(player):
@@ -17,7 +16,7 @@ def turn_right(player):
 def distance(turtle_a, turtle_b):
     x = turtle_a.xcor() - turtle_b.xcor()
     y = turtle_a.ycor() - turtle_b.ycor()
-    return np.sqrt((x ** 2) + (y ** 2))
+    return math.sqrt((x ** 2) + (y ** 2))
 
 
 def main():
