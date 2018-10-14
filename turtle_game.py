@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import math
+import random
 import turtle
 
 
@@ -17,6 +18,14 @@ def distance(turtle_a, turtle_b):
     x = turtle_a.xcor() - turtle_b.xcor()
     y = turtle_a.ycor() - turtle_b.ycor()
     return math.sqrt((x ** 2) + (y ** 2))
+
+
+def random_loc(bounds_dist):
+    return random.randint(-bounds_dist, bounds_dist)
+
+
+def random_start(bounds_dist):
+    return random_loc(bounds_dist), random_loc(bounds_dist)
 
 
 def main():
@@ -82,8 +91,8 @@ def main():
 
     init_screen()
     draw_boundary(bounds_dist)
-    player = create_player_object((   0,   0), 'white', 'square')
-    goal   = create_player_object((-100, 100), 'white', 'circle')
+    player = create_player_object(random_start(bounds_dist), 'white', 'square')
+    goal   = create_player_object(random_start(bounds_dist), 'white', 'circle')
 
     listen_arrowkeys(player)
 
