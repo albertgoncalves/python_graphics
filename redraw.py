@@ -3,15 +3,14 @@
 
 import curses
 from functools import reduce
+import random
 from time import sleep
-
-import numpy as np
 
 
 def random_cursor(max_x, max_y):
 
     def random_between(min_val):
-        return lambda max_val: np.random.randint(min_val, max_val, 1)[0]
+        return lambda max_val: random.randint(min_val, max_val - 1)
 
     return tuple(map(random_between(0), [max_x, max_y]))
 
@@ -55,7 +54,7 @@ def output_formats(format_len):
 
 def pbar(window):
     char_map = {0: '-', 1: '\\', 2: '|', 3: '/'}
-    n, k = (60, 4)
+    n, k = (80, 4)
 
     for i in range(n):
         max_x, max_y = flip_2(window.getmaxyx())
@@ -72,7 +71,7 @@ def pbar(window):
         window.addstr(4, 0, pad(cursor_output.format(new_x, new_y)))
         window.addstr(new_y, new_x, '*')
         window.refresh()
-        sleep(0.2)
+        sleep(0.05)
 
 
 def main():
