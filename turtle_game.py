@@ -6,16 +6,12 @@ import random
 import turtle
 
 
-def turn_left(player):
-    return lambda: player.left(30)
-
-
-def turn_right(player):
-    return lambda: player.right(30)
-
-
-def set_heading(player, heading):
-    return lambda: (player.setheading(heading), player.forward(10))
+# def turn_left(player):
+#     return lambda: player.left(15)
+#
+#
+# def turn_right(player):
+#     return lambda: player.right(15)
 
 
 def distance(turtle_a, turtle_b):
@@ -62,38 +58,48 @@ def main():
         boundary.hideturtle()
         turtle.update()
 
-    def create_player_object(coords, shape, color='white'):
+    def create_player_object(coords, orientation, shape, color='white'):
         player_object = turtle.Turtle()
         player_object.color(color)
         player_object.shape(shape)
         player_object.penup()
         player_object.speed(0)
         player_object.setpos(*coords)
-        player_object.right(random.randint(0, 360))
+        player_object.setheading(orientation)
         return player_object
 
     def listen_arrowkeys(player):
+
+        def assign_movement(player, heading, key):
+            turtle.onkeypress(set_heading(player, heading), key)
+            turtle.onkeyrelease(speed_off, key)
+
+        def set_heading(player, heading):
+            return lambda: enable_movement(player, heading)
+
+        def enable_movement(player, heading):
+            player.setheading(heading)
+            speed_on()
+
+        def speed_on():
+            global player_speed
+            player_speed = 3
+
+        def speed_off():
+            global player_speed
+            player_speed = 0
+
         turtle.listen()
 
-        turtle.onkey( turn_left(player), 'Left' )
-        turtle.onkey(turn_right(player), 'Right')
-        turtle.onkey(    increase_speed, 'Up'   )
-        turtle.onkey(    decrease_speed, 'Down' )
+        headings_to_keys = [ (  0, 'Right')
+                           , (180, 'Left' )
+                           , ( 90, 'Up'   )
+                           , (270, 'Down' )
+                           ]
 
-        turtle.onkey(set_heading(player,   0), 'd')
-        turtle.onkey(set_heading(player, 180), 'a')
-        turtle.onkey(set_heading(player,  90), 'w')
-        turtle.onkey(set_heading(player, 270), 's')
+        for heading, key in headings_to_keys:
+            assign_movement(player, heading, key)
 
-    def increase_speed():
-        global player_speed
-        if player_speed < 4:
-            player_speed += 1
-
-    def decrease_speed():
-        global player_speed
-        if player_speed > 0:
-            player_speed -= 1
 
     def end_loop():
         global loop
@@ -107,7 +113,10 @@ def main():
                )
 
     def create_goal():
-        return create_player_object(random_start(bounds_safe), 'circle')
+        return create_player_object( random_start(bounds_safe)
+                                   , random.randint(0, 360)
+                                   , 'circle'
+                                   )
 
     global player_speed; player_speed = 0
     global loop        ; loop         = True
@@ -118,8 +127,8 @@ def main():
 
     init_screen()
     draw_boundary(bounds_dist)
-    player = create_player_object(random_start(bounds_safe), 'triangle')
-    goals  = list(map(lambda _: create_goal(), list(range(n_goals))))
+    player = create_player_object(random_start(bounds_safe), 90, 'triangle')
+    goals  = list(map(lambda _: create_goal(), range(n_goals)))
 
     while loop:
         player.forward(player_speed)
@@ -135,7 +144,6 @@ def main():
             if distance(player, goal) < 10:
                 goal.setpos(*random_start(bounds_safe))
                 goal.right(random.randint(0, 360))
-                # loop = False
 
         turtle.update()
 
