@@ -46,7 +46,7 @@ def main():
         boundary.hideturtle()
         turtle.update()
 
-    def create_player_object(coords, orientation, shape, color='white'):
+    def create_player_object(coords, orientation, shape, size, color='white'):
         player_object = turtle.Turtle()
         player_object.color(color)
         player_object.shape(shape)
@@ -54,6 +54,7 @@ def main():
         player_object.speed(0)
         player_object.setpos(*coords)
         player_object.setheading(orientation)
+        player_object.shapesize(size, size)
         return player_object
 
     def listen_arrowkeys(player):
@@ -104,6 +105,7 @@ def main():
         return create_player_object( random_start(bounds_safe)
                                    , random.randint(0, 360)
                                    , 'square'
+                                   , 2
                                    )
 
     global player_speed; player_speed = 0
@@ -115,7 +117,7 @@ def main():
 
     init_screen()
     draw_boundary(bounds_dist)
-    player = create_player_object(random_start(bounds_safe), 90, 'triangle')
+    player = create_player_object(random_start(bounds_safe), 90, 'triangle', 1)
     goals  = list(map(lambda _: create_goal(), range(n_goals)))
 
     while loop:
