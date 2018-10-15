@@ -6,14 +6,6 @@ import random
 import turtle
 
 
-# def turn_left(player):
-#     return lambda: player.left(15)
-#
-#
-# def turn_right(player):
-#     return lambda: player.right(15)
-
-
 def distance(turtle_a, turtle_b):
     x = turtle_a.xcor() - turtle_b.xcor()
     y = turtle_a.ycor() - turtle_b.ycor()
@@ -26,10 +18,6 @@ def random_loc(bounds_dist):
 
 def random_start(bounds_dist):
     return random_loc(bounds_dist), random_loc(bounds_dist)
-
-
-# def smudge(val):
-#     return val + (val * (0.075 * (random.random() - 0.5)))
 
 
 def main():
@@ -47,7 +35,7 @@ def main():
         boundary.penup()
         boundary.setpos(-bounds_dist, -bounds_dist)
         boundary.pendown()
-        boundary.pensize(3)
+        boundary.pensize(1)
         boundary.color('white')
         boundary.speed(0)
 
@@ -83,7 +71,7 @@ def main():
 
         def speed_on():
             global player_speed
-            player_speed = 3
+            player_speed = 4
 
         def speed_off():
             global player_speed
@@ -115,7 +103,7 @@ def main():
     def create_goal():
         return create_player_object( random_start(bounds_safe)
                                    , random.randint(0, 360)
-                                   , 'circle'
+                                   , 'square'
                                    )
 
     global player_speed; player_speed = 0
