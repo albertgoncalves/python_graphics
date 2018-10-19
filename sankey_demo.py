@@ -25,8 +25,9 @@ def list_to_elements(dict_items):
     gap         = total * 0.05
     labels      = list(dict_items.keys())
     right_edges = [0] + np.cumsum(values[:-1]).tolist()
-    left_edges  = [l + (i * gap) - (total / n)
-                   for i, l in enumerate(right_edges)]
+    left_edges  = [ l + (i * gap) - (total / n)
+                    for i, l in enumerate(right_edges)
+                  ]
 
     return values, left_edges, right_edges, labels, total
 
@@ -48,7 +49,7 @@ def chart_from_elements(values, left_edges, right_edges, labels, total, m):
     x_min   = np.min(x)
     x_max   = np.max(x)
 
-    fig, ax = plt.subplots(figsize=(8, 8))
+    fig, ax = plt.subplots(figsize=(6, 6))
 
     for v, le, re, lb in zip(values, left_edges, right_edges, labels):
         ax.fill_between(x, *sig_btwn_pts(x, le, re, v))
@@ -63,14 +64,10 @@ def chart_from_elements(values, left_edges, right_edges, labels, total, m):
     rect = Rectangle((x_max, 0), -0.5, total, alpha=0.5, color='w')
     ax.add_patch(rect)
 
-    # for ax_f in [ax.axhline, ax.axvline]:
-    #     ax_f(0, ls='dotted', alpha=.5, color='k', zorder=1)
-
     ax.axis('off')
 
     plt.tight_layout(rect=get_margins())
-    # plt.savefig('tmp/test.png')
-    plt.show()
+    plt.savefig('tmp/test.png')
     plt.close()
 
 
