@@ -45,20 +45,21 @@ def usd(num_value):
 
 
 def chart_from_elements(values, left_edges, right_edges, labels, total, m):
-    x       = gen_x(m)
-    x_min   = np.min(x)
-    x_max   = np.max(x)
+    x     = gen_x(m)
+    x_min = np.min(x)
+    x_max = np.max(x)
 
     fig, ax = plt.subplots(figsize=(6, 6))
 
     for v, le, re, lb in zip(values, left_edges, right_edges, labels):
         ax.fill_between(x, *sig_btwn_pts(x, le, re, v))
-        ax.text(x_min - 0.25,
-                (le + (v / 2)),
-                '\n'.join([lb, usd(v)]),
-                ha='right',
-                va='center',
-                fontsize='small')
+        ax.text( x_min - 0.25
+               , (le + (v / 2))
+               , '\n'.join([lb, usd(v)])
+               , ha      ='right'
+               , va      ='center'
+               , fontsize='small'
+               )
 
     ax.text(x_max + 0.25, total / 2, usd(total), fontsize='large')
     rect = Rectangle((x_max, 0), -0.5, total, alpha=0.5, color='w')
