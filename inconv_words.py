@@ -168,7 +168,7 @@ def main():
                                                      , 'lw': 0.325
                                                      }
                                    }
-                 , 'points': True
+                 , 'points': False
                  }
 
     if not check_params(params):
