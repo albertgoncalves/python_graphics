@@ -26,16 +26,13 @@ def random_coords(x_loc, x_stretch, y_loc, y_stretch, n):
 def word_points( word_len, x_loc, x_stretch, y_loc, y_stretch, min_char_pts
                , max_char_pts):
 
-    def rand_n(min_char_pts, max_char_pts):
-        return randint(min_char_pts, max_char_pts, 1)
-
     def coords_shift_x(mod):
         x_shift = mod + (mod * 1.5)
         return random_coords( x_loc + x_shift
                             , x_stretch
                             , y_loc
                             , y_stretch
-                            , rand_n(min_char_pts, max_char_pts)
+                            , randint(min_char_pts, max_char_pts)
                             )
 
     return concatenate(list(map(coords_shift_x, range(word_len))))
@@ -56,41 +53,42 @@ def smudge(mod):
     return ((random() - 0.5) * mod)
 
 
-def interp_word(word_len, x_loc, y_loc, subparams):
-    subparams['word_len'] = word_len
-    subparams['x_loc']    = x_loc
-    subparams['y_loc']    = y_loc
+def interp_word(word_len, x_loc, y_loc, char_params):
+    char_params['word_len'] = word_len
+    char_params['x_loc']    = x_loc
+    char_params['y_loc']    = y_loc
 
-    xy    = word_points(**subparams)
+    xy    = word_points(**char_params)
     x, y  = xy_to_coords(xy)
     curve = interp_points(x, y)
     return x, y, curve
 
 
-def plot_word(ax, x, y, curve, points=False):
+def plot_word(x, y, curve, ax, ax_params, points):
     if points:
-        ax.plot(x, y, 'ro', ms=1, alpha=0.175)
-    ax.plot(curve[0], curve[1], c='k', lw=0.325)
+        ax.scatter(x, y, **ax_params['point_params'])
+    ax.plot(curve[0], curve[1], **ax_params['line_params'])
 
 
 def plot_line( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_word_len
-             , max_word_len, subparams):
+             , max_word_len, char_params, ax_params, points):
     x = x_init()
     while x < x_limit:
         word_len = randint(min_word_len, max_word_len)
-        plot_word( ax
-                 , *interp_word( word_len
+        plot_word( *interp_word( word_len
                                , x
                                , y_loc + smudge(y_smudge)
-                               , subparams
+                               , char_params
                                )
-                 , points=False
+                 , ax
+                 , ax_params
+                 , points
                  )
         x += (word_len * word_gap())
 
 
 def plot_page( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
-             , min_word_len, max_word_len, subparams):
+             , min_word_len, max_word_len, char_params, ax_params, points):
     for i in range(n_lines):
         y_loc = i * y_scale
         plot_line( ax
@@ -101,7 +99,9 @@ def plot_page( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
                  , y_smudge
                  , min_word_len
                  , max_word_len
-                 , subparams
+                 , char_params
+                 , ax_params
+                 , points
                  )
 
 
@@ -114,9 +114,9 @@ def main():
                & (params['x_limit']   < 1000)  # loops
                & (params['min_word_len'] > 1)
                & (params['max_word_len'] > params['min_word_len'])
-               & (params['subparams']['min_char_pts'] > 1)
-               & ( params['subparams']['max_char_pts']
-                 > params['subparams']['min_char_pts']
+               & (params['char_params']['min_char_pts'] > 1)
+               & ( params['char_params']['max_char_pts']
+                 > params['char_params']['min_char_pts']
                  )
                )
 
@@ -142,7 +142,7 @@ def main():
 
     seed(2)
     fig_params = { 'figsize'     : (5, 6.5)
-                 , 'dpi'         : 115
+                 , 'dpi'         : 125
                  }
     params     = { 'n_lines'     : 30
                  , 'x_init'      : lambda: random() * 3.5
@@ -152,11 +152,21 @@ def main():
                  , 'y_smudge'    : 1.8
                  , 'min_word_len': 2
                  , 'max_word_len': 7
-                 , 'subparams': { 'x_stretch'   : 1
-                                , 'y_stretch'   : 2.5
-                                , 'min_char_pts': 2
-                                , 'max_char_pts': 10
-                                }
+                 , 'char_params' : { 'x_stretch'   : 1
+                                   , 'y_stretch'   : 2.5
+                                   , 'min_char_pts': 2
+                                   , 'max_char_pts': 10
+                                   }
+                 , 'ax_params'   : { 'point_params': { 'marker': 'o'
+                                                     , 'c'     : 'r'
+                                                     , 's'     : 1
+                                                     , 'alpha' : 0.175
+                                                     }
+                                   , 'line_params' : { 'c' : 'k'
+                                                     , 'lw': 0.325
+                                                     }
+                                   }
+                 , 'points': False
                  }
 
     if not check_params(params):
