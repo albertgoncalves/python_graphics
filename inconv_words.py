@@ -21,7 +21,6 @@ def random_coords(x_loc, x_stretch, y_loc, y_stretch, n):
 
     x = prepare_coord(x_stretch, x_loc, n)
     y = prepare_coord(y_stretch, y_loc, n)
-
     return column_stack([x, y])
 
 
@@ -32,7 +31,6 @@ def char_chain(chain_len, x_loc, x_stretch, y_loc, y_stretch, min_n, max_n):
 
     def coords_shift_x(mod):
         x_shift = mod + (mod * 1.5)
-
         return random_coords( x_loc + x_shift
                             , x_stretch
                             , y_loc
