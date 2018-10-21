@@ -89,7 +89,6 @@ def main():
         for heading, key in headings_to_keys:
             assign_movement(player, heading, key)
 
-
     def end_loop():
         global loop
         loop = False
@@ -108,12 +107,14 @@ def main():
                                    , 2
                                    )
 
-    global player_speed; player_speed = 0
-    global loop        ; loop         = True
-    bounds_dist = 275
-    bounds_safe = int(bounds_dist * 0.65)
-    n_goals     = 4
-    goal_speed  = 3
+    global player_speed
+    player_speed = 0
+    global loop
+    loop         = True
+    bounds_dist  = 275
+    bounds_safe  = int(bounds_dist * 0.65)
+    n_goals      = 4
+    goal_speed   = 3
 
     init_screen()
     draw_boundary(bounds_dist)

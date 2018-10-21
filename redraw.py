@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import curses
-from functools import reduce
+# from functools import reduce
 import random
 from time import sleep
 

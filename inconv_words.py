@@ -6,14 +6,10 @@
 import matplotlib.pyplot as plt
 from numpy             import concatenate
 from numpy             import column_stack
-from numpy             import cos
 from numpy             import linspace
-from numpy             import pi
-from numpy             import sin
 from numpy.random      import randint
 from numpy.random      import random
 from numpy.random      import seed
-from numpy.random      import shuffle
 from scipy.interpolate import splev
 from scipy.interpolate import splprep
 
@@ -111,22 +107,20 @@ def draw_word(ax, x, y, curve, points=False):
 
 def main():
 
-    def plot_params(params, fig_params, filename):     # other things can still
-        check_params = ( (params['n_lines']   > 1)     # go wrong! ...
-                       & (params['n_lines']   < 1000)
-                       & (params['x_limit']   > 0)     # this is mostly to
-                       & (params['x_limit']   < 1000)  # prevent inf loops
-                       & (params['min_chain'] > 1)
-                       & (params['max_chain'] > params['min_chain'])
-                       & (params['subparams']['min_n'] > 1)
-                       & ( params['subparams']['max_n']
-                         > params['subparams']['min_n']
-                         )
-                       )
+    def check_params(params):                  # other things can still go
+        return ( (params['n_lines']   > 1)     # wrong! ...
+               & (params['n_lines']   < 1000)
+               & (params['x_limit']   > 0)     # this is mostly to prevent inf
+               & (params['x_limit']   < 1000)  # loops
+               & (params['min_chain'] > 1)
+               & (params['max_chain'] > params['min_chain'])
+               & (params['subparams']['min_n'] > 1)
+               & ( params['subparams']['max_n']
+                 > params['subparams']['min_n']
+                 )
+               )
 
-        if not check_params:
-            raise ValueError('Bad value(s) in params.')
-        else:
+    def plot_params(params, fig_params, filename):
 
             def init_plot(fig_params):
                 fig, ax = plt.subplots(**fig_params)
@@ -165,7 +159,10 @@ def main():
                                 }
                  }
 
-    plot_params(params, fig_params, 'tmp/inconv_words.png')
+    if not check_params(params):
+        raise ValueError('Bad value(s) in params.')
+    else:
+        plot_params(params, fig_params, 'tmp/inconv_words.png')
 
 
 if __name__ == '__main__':

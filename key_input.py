@@ -49,7 +49,6 @@ def loop(window):
                 , curses.KEY_RIGHT: ( 0,  1)
                 }
 
-    refresh = round(1 / 60, 4)
     key     = ''
     char    = '*'
     x, y    = (20, 50)
