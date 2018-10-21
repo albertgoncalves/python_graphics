@@ -53,7 +53,7 @@ def xy_to_coords(xy):
 
 def interpolate_points(x, y):
     tck, u = splprep([x, y], s=0)
-    u_new  = linspace(u.min(), u.max(), 1000)
+    u_new  = linspace(u.min(), u.max(), 100)
     curve  = splev(u_new, tck, der=0)
     return curve
 
@@ -113,24 +113,40 @@ def draw_word(ax, x, y, curve, points=False):
 def main():
 
     def plot_params(params, fig_params, filename):
+                                                       # other things can still
+        check_params = ( (params['n_lines']   > 1)     # go wrong! ...
+                       & (params['n_lines']   < 1000)
+                       & (params['x_limit']   > 0)     # this is mostly to
+                       & (params['x_limit']   < 1000)  # prevent inf loops
+                       & (params['min_chain'] > 1)
+                       & (params['max_chain'] > params['min_chain'])
+                       & (params['subparams']['min_n'] > 1)
+                       & ( params['subparams']['max_n']
+                         > params['subparams']['min_n']
+                         )
+                       )
 
-        def init_plot(fig_params):
-            fig, ax = plt.subplots(**fig_params)
-            ax.set_aspect('equal')
-            ax.set_xticks([])
-            ax.set_yticks([])
-            ax.axis('off')
-            return fig, ax
+        if not check_params:
+            raise ValueError('Bad value(s) in params.')
+        else:
 
-        def save_plot():
-            plt.tight_layout()
-            plt.savefig(filename)
-            plt.close()
+            def init_plot(fig_params):
+                fig, ax = plt.subplots(**fig_params)
+                ax.set_aspect('equal')
+                ax.set_xticks([])
+                ax.set_yticks([])
+                ax.axis('off')
+                return fig, ax
 
-        _, ax = init_plot(fig_params)
-        params['ax'] = ax
-        write_lines(**params)
-        save_plot()
+            def save_plot():
+                plt.tight_layout()
+                plt.savefig(filename)
+                plt.close()
+
+            _, ax = init_plot(fig_params)
+            params['ax'] = ax
+            write_lines(**params)
+            save_plot()
 
     seed(2)
     fig_params = { 'figsize'  : (5, 6.5)
