@@ -105,42 +105,44 @@ def plot_page( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
                  )
 
 
+def check_params(params):
+    return ( (params['n_lines']   > 1)     # other things can still go wrong!
+           & (params['n_lines']   < 1000)
+           & (params['x_limit']   > 0)     # this is mostly to prevent inf
+           & (params['x_limit']   < 1000)  # loops
+           & (params['min_word_len'] > 1)
+           & (params['max_word_len'] > params['min_word_len'])
+           & (params['char_params']['min_char_pts'] > 1)
+           & ( params['char_params']['max_char_pts']
+             > params['char_params']['min_char_pts']
+             )
+           )
+
+
+def plot_params(params, fig_params, filename):
+
+    def init_plot(fig_params):
+        fig, ax = plt.subplots(**fig_params)
+        ax.set_aspect('equal')
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.axis('off')
+        return fig, ax
+
+    def save_plot(filename):
+        plt.tight_layout()
+        plt.savefig(filename)
+        plt.close()
+
+    _, ax = init_plot(fig_params)
+    params['ax'] = ax
+    plot_page(**params)
+    save_plot(filename)
+
+
 def main():
-
-    def check_params(params):                  # other things can still go
-        return ( (params['n_lines']   > 1)     # wrong! ...
-               & (params['n_lines']   < 1000)
-               & (params['x_limit']   > 0)     # this is mostly to prevent inf
-               & (params['x_limit']   < 1000)  # loops
-               & (params['min_word_len'] > 1)
-               & (params['max_word_len'] > params['min_word_len'])
-               & (params['char_params']['min_char_pts'] > 1)
-               & ( params['char_params']['max_char_pts']
-                 > params['char_params']['min_char_pts']
-                 )
-               )
-
-    def plot_params(params, fig_params, filename):
-
-            def init_plot(fig_params):
-                fig, ax = plt.subplots(**fig_params)
-                ax.set_aspect('equal')
-                ax.set_xticks([])
-                ax.set_yticks([])
-                ax.axis('off')
-                return fig, ax
-
-            def save_plot():
-                plt.tight_layout()
-                plt.savefig(filename)
-                plt.close()
-
-            _, ax = init_plot(fig_params)
-            params['ax'] = ax
-            plot_page(**params)
-            save_plot()
-
     seed(2)
+
     fig_params = { 'figsize'     : (5, 6.5)
                  , 'dpi'         : 125
                  }
@@ -166,7 +168,7 @@ def main():
                                                      , 'lw': 0.325
                                                      }
                                    }
-                 , 'points': False
+                 , 'points': True
                  }
 
     if not check_params(params):
