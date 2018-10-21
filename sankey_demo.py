@@ -68,7 +68,7 @@ def chart_from_elements(values, left_edges, right_edges, labels, total, m):
     ax.axis('off')
 
     plt.tight_layout(rect=get_margins())
-    plt.savefig('tmp/test.png')
+    plt.savefig('tmp/sankey_demo.png')
     plt.close()
 
 

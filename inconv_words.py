@@ -151,7 +151,7 @@ def main():
                                 }
                  }
 
-    plot_params(params, fig_params, 'inconv_words.png')
+    plot_params(params, fig_params, 'tmp/inconv_words.png')
 
 
 if __name__ == '__main__':
