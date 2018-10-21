@@ -58,30 +58,61 @@ def interpolate_points(x, y):
     return curve
 
 
+def smudge(mod):
+    return ((random() - 0.5) * mod)
+
+
 def main():
 
+    def chain_to_plot(ax, chain_len, x_loc, y_loc):
+        params = {'x_stretch': 1, 'y_stretch': 3, 'min_n': 3, 'max_n': 7}
+        params['chain_len'] = chain_len
+        params['x_loc']     = x_loc
+        params['y_loc']     = y_loc
+
+        xy     = word_chain(**params)
+        x, y   = xy_to_coords(xy)
+        curve  = interpolate_points(x, y)
+
+        draw_word(ax, x, y, curve, True)
+
+    def chain_words(y_loc, x_limit):
+
+        def spacing_scale(x_pos):
+            return (x_pos * (3 + (random() * 0.5)))
+
+        x = random() * 3.5
+        while x < x_limit:
+            chain_len = randint(2, 7)
+            chain_to_plot(ax, chain_len, x, y_loc + smudge(0.35))
+            x += spacing_scale(chain_len)
+
+    def write_lines(n_lines, y_scale, x_limit):
+        for i in range(n_lines):
+            y = i * y_scale
+            chain_words(y, x_limit)
+
     def init_plot():
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(5, 6))
         ax.set_aspect('equal')
+        ax.set_xticks([])
+        ax.set_yticks([])
         return fig, ax
 
-    def show_plot():
+    def save_plot():
         plt.tight_layout()
-        plt.show()
+        plt.savefig('inconv_words.png')
+        plt.close()
 
-    def draw_words(ax, x, y, curve):
-        ax.plot(x, y, 'ro')
-        ax.plot(curve[0], curve[1], 'k-')
+    def draw_word(ax, x, y, curve, points=False):
+        if points:
+            ax.plot(x, y, 'ro', ms=1, alpha=0.175)
+        ax.plot(curve[0], curve[1], c='k', lw=0.325)
 
-    seed(5)
-    params = {'x_stretch': 1, 'y_stretch': 3, 'min_n': 3, 'max_n': 6}
-    xy     = word_chain(chain_len=7, x_loc=0, y_loc=0, **params)
-    x, y   = xy_to_coords(xy)
-    curve  = interpolate_points(x, y)
-
+    seed(2)
     _, ax = init_plot()
-    draw_words(ax, x, y, curve)
-    show_plot()
+    write_lines(n_lines=35, y_scale=5, x_limit=100)
+    save_plot()
 
 
 if __name__ == '__main__':
