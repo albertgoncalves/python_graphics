@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# via https://github.com/inconvergent/sand-glyphs
+
 import matplotlib.pyplot as plt
 from numpy             import concatenate
 from numpy             import column_stack
@@ -72,8 +74,8 @@ def main():
         ax.plot(curve[0], curve[1], 'k-')
 
     seed(5)
-    params = {'x_stretch': 1, 'y_stretch': 5, 'min_n': 3, 'max_n': 6}
-    xy     = word_chain(chain_len=3, x_loc=0, y_loc=1, **params)
+    params = {'x_stretch': 1, 'y_stretch': 3, 'min_n': 3, 'max_n': 6}
+    xy     = word_chain(chain_len=7, x_loc=0, y_loc=0, **params)
     x, y   = xy_to_coords(xy)
     curve  = interpolate_points(x, y)
 
