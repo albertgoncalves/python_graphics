@@ -16,18 +16,18 @@ from scipy.interpolate import splprep
 
 def random_coords(x_loc, x_stretch, y_loc, y_stretch, n):
 
-    def prepare_coord(stretch, loc, n):
+    def n_coords(stretch, loc):
         return (random(n) * stretch) + loc
 
-    x = prepare_coord(x_stretch, x_loc, n)
-    y = prepare_coord(y_stretch, y_loc, n)
-    return column_stack([x, y])
+    xy = [n_coords(x_stretch, x_loc), n_coords(y_stretch, y_loc)]
+    return column_stack(xy)
 
 
-def char_chain(chain_len, x_loc, x_stretch, y_loc, y_stretch, min_n, max_n):
+def word_points( word_len, x_loc, x_stretch, y_loc, y_stretch, min_char_pts
+               , max_char_pts):
 
-    def rand_n(min_n, max_n):
-        return randint(min_n, max_n, 1)
+    def rand_n(min_char_pts, max_char_pts):
+        return randint(min_char_pts, max_char_pts, 1)
 
     def coords_shift_x(mod):
         x_shift = mod + (mod * 1.5)
@@ -35,17 +35,17 @@ def char_chain(chain_len, x_loc, x_stretch, y_loc, y_stretch, min_n, max_n):
                             , x_stretch
                             , y_loc
                             , y_stretch
-                            , rand_n(min_n, max_n)
+                            , rand_n(min_char_pts, max_char_pts)
                             )
 
-    return concatenate(list(map(coords_shift_x, range(chain_len))))
+    return concatenate(list(map(coords_shift_x, range(word_len))))
 
 
 def xy_to_coords(xy):
     return xy[:, 0], xy[:, 1]
 
 
-def interpolate_points(x, y):
+def interp_points(x, y):
     tck, u = splprep([x, y], s=0)
     u_new  = linspace(u.min(), u.max(), 100)
     curve  = splev(u_new, tck, der=0)
@@ -56,51 +56,53 @@ def smudge(mod):
     return ((random() - 0.5) * mod)
 
 
-def chain_to_plot(ax, chain_len, x_loc, y_loc, subparams):
-    subparams['chain_len'] = chain_len
-    subparams['x_loc']     = x_loc
-    subparams['y_loc']     = y_loc
+def interp_word(word_len, x_loc, y_loc, subparams):
+    subparams['word_len'] = word_len
+    subparams['x_loc']    = x_loc
+    subparams['y_loc']    = y_loc
 
-    xy    = char_chain(**subparams)
+    xy    = word_points(**subparams)
     x, y  = xy_to_coords(xy)
-    curve = interpolate_points(x, y)
-
-    draw_word(ax, x, y, curve, points=False)
-
-
-def chain_words( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_chain
-               , max_chain, subparams):
-    x = x_init()
-    while x < x_limit:
-        chain_len = randint(min_chain, max_chain)
-        chain_to_plot( ax
-                     , chain_len
-                     , x, y_loc + smudge(y_smudge)
-                     , subparams
-                     )
-        x += (chain_len * word_gap())
+    curve = interp_points(x, y)
+    return x, y, curve
 
 
-def write_lines( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
-               , min_chain, max_chain, subparams):
-    for i in range(n_lines):
-        y_loc = i * y_scale
-        chain_words( ax
-                   , x_init
-                   , x_limit
-                   , word_gap
-                   , y_loc
-                   , y_smudge
-                   , min_chain
-                   , max_chain
-                   , subparams
-                   )
-
-
-def draw_word(ax, x, y, curve, points=False):
+def plot_word(ax, x, y, curve, points=False):
     if points:
         ax.plot(x, y, 'ro', ms=1, alpha=0.175)
     ax.plot(curve[0], curve[1], c='k', lw=0.325)
+
+
+def plot_line( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_word_len
+             , max_word_len, subparams):
+    x = x_init()
+    while x < x_limit:
+        word_len = randint(min_word_len, max_word_len)
+        plot_word( ax
+                 , *interp_word( word_len
+                               , x
+                               , y_loc + smudge(y_smudge)
+                               , subparams
+                               )
+                 , points=False
+                 )
+        x += (word_len * word_gap())
+
+
+def plot_page( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
+             , min_word_len, max_word_len, subparams):
+    for i in range(n_lines):
+        y_loc = i * y_scale
+        plot_line( ax
+                 , x_init
+                 , x_limit
+                 , word_gap
+                 , y_loc
+                 , y_smudge
+                 , min_word_len
+                 , max_word_len
+                 , subparams
+                 )
 
 
 def main():
@@ -110,11 +112,11 @@ def main():
                & (params['n_lines']   < 1000)
                & (params['x_limit']   > 0)     # this is mostly to prevent inf
                & (params['x_limit']   < 1000)  # loops
-               & (params['min_chain'] > 1)
-               & (params['max_chain'] > params['min_chain'])
-               & (params['subparams']['min_n'] > 1)
-               & ( params['subparams']['max_n']
-                 > params['subparams']['min_n']
+               & (params['min_word_len'] > 1)
+               & (params['max_word_len'] > params['min_word_len'])
+               & (params['subparams']['min_char_pts'] > 1)
+               & ( params['subparams']['max_char_pts']
+                 > params['subparams']['min_char_pts']
                  )
                )
 
@@ -135,25 +137,25 @@ def main():
 
             _, ax = init_plot(fig_params)
             params['ax'] = ax
-            write_lines(**params)
+            plot_page(**params)
             save_plot()
 
     seed(2)
-    fig_params = { 'figsize'  : (5, 6.5)
-                 , 'dpi'      : 115
+    fig_params = { 'figsize'     : (5, 6.5)
+                 , 'dpi'         : 115
                  }
-    params     = { 'n_lines'  : 30
-                 , 'x_init'   : lambda: random() * 3.5
-                 , 'x_limit'  : 100
-                 , 'word_gap' : lambda: (3 + (random() * 0.5))
-                 , 'y_scale'  : 5.15
-                 , 'y_smudge' : 0.35
-                 , 'min_chain': 2
-                 , 'max_chain': 7
-                 , 'subparams': { 'x_stretch': 1
-                                , 'y_stretch': 2.5
-                                , 'min_n'    : 2
-                                , 'max_n'    : 10
+    params     = { 'n_lines'     : 30
+                 , 'x_init'      : lambda: random() * 3.5
+                 , 'x_limit'     : 100
+                 , 'word_gap'    : lambda: (3 + (random() * 0.5))
+                 , 'y_scale'     : 5.15
+                 , 'y_smudge'    : 1.8
+                 , 'min_word_len': 2
+                 , 'max_word_len': 7
+                 , 'subparams': { 'x_stretch'   : 1
+                                , 'y_stretch'   : 2.5
+                                , 'min_char_pts': 2
+                                , 'max_char_pts': 10
                                 }
                  }
 
