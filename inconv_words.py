@@ -76,7 +76,6 @@ def chain_to_plot(ax, chain_len, x_loc, y_loc, subparams):
 
 def chain_words( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_chain
                , max_chain, subparams):
-
     x = x_init()
     while x < x_limit:
         chain_len = randint(min_chain, max_chain)
@@ -112,8 +111,7 @@ def draw_word(ax, x, y, curve, points=False):
 
 def main():
 
-    def plot_params(params, fig_params, filename):
-                                                       # other things can still
+    def plot_params(params, fig_params, filename):     # other things can still
         check_params = ( (params['n_lines']   > 1)     # go wrong! ...
                        & (params['n_lines']   < 1000)
                        & (params['x_limit']   > 0)     # this is mostly to
