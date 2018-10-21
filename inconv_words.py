@@ -67,7 +67,7 @@ def chain_to_plot(ax, chain_len, x_loc, y_loc, subparams):
     x, y  = xy_to_coords(xy)
     curve = interpolate_points(x, y)
 
-    draw_word(ax, x, y, curve, points=True)
+    draw_word(ax, x, y, curve, points=False)
 
 
 def chain_words( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_chain
