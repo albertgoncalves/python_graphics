@@ -19,7 +19,7 @@ def random_coords(x_loc, x_stretch, y_loc, y_stretch, n):
     def n_coords(stretch, loc):
         return (random(n) * stretch) + loc
 
-    xy = [n_coords(x_stretch, x_loc), n_coords(y_stretch, y_loc)]
+    xy = [n_coords(x_stretch, x_loc), n_coords(y_stretch(), y_loc)]
     return column_stack(xy)
 
 
@@ -67,7 +67,10 @@ def interp_word(word_len, x_loc, y_loc, char_params):
 def plot_word(x, y, curve, ax, ax_params, points):
     if points:
         ax.scatter(x, y, **ax_params['point_params'])
-    ax.plot(curve[0], curve[1], **ax_params['line_params'])
+    line_params = { key: ax_params['line_params'][key]()
+                    for key in ax_params['line_params'].keys()
+                  }
+    ax.plot(curve[0], curve[1], **line_params)
 
 
 def plot_line( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_word_len
@@ -143,31 +146,32 @@ def plot_params(params, fig_params, filename):
 def main():
     seed(2)
 
-    fig_params = { 'figsize'     : (5, 6.5)
+    fig_params = { 'figsize'     : (5, 7.5)
                  , 'dpi'         : 125
+                 }
+    ax_params  = { 'point_params': { 'marker': 'o'
+                                   , 'c'     : 'r'
+                                   , 's'     : 1
+                                   , 'alpha' : 0.175
+                                   }
+                 , 'line_params':  { 'c'     : lambda: str(random() * 0.3)
+                                   , 'lw'    : lambda: (random() * 0.05) + 0.29
+                                   }
                  }
     params     = { 'n_lines'     : 30
                  , 'x_init'      : lambda: random() * 3.5
                  , 'x_limit'     : 100
-                 , 'word_gap'    : lambda: (3 + (random() * 0.5))
-                 , 'y_scale'     : 5.15
+                 , 'word_gap'    : lambda: 3 + (random() * 0.5)
+                 , 'y_scale'     : 6
                  , 'y_smudge'    : 1.8
                  , 'min_word_len': 2
                  , 'max_word_len': 7
-                 , 'char_params' : { 'x_stretch'   : 1
-                                   , 'y_stretch'   : 2.5
+                 , 'char_params' : { 'x_stretch': 1
+                                   , 'y_stretch': lambda: 2 + (random() * 3)
                                    , 'min_char_pts': 2
                                    , 'max_char_pts': 10
                                    }
-                 , 'ax_params'   : { 'point_params': { 'marker': 'o'
-                                                     , 'c'     : 'r'
-                                                     , 's'     : 1
-                                                     , 'alpha' : 0.175
-                                                     }
-                                   , 'line_params' : { 'c' : 'k'
-                                                     , 'lw': 0.325
-                                                     }
-                                   }
+                 , 'ax_params'   : ax_params
                  , 'points': False
                  }
 
