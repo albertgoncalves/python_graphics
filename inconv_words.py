@@ -146,15 +146,15 @@ def plot_params(params, fig_params, filename):
 def main():
     seed(2)
 
-    fig_params = { 'figsize'     : (5, 7.5)
-                 , 'dpi'         : 125
+    fig_params = { 'figsize': (5, 7.5)
+                 , 'dpi'    : 125
                  }
     ax_params  = { 'point_params': { 'marker': 'o'
                                    , 'c'     : 'r'
                                    , 's'     : 1
                                    , 'alpha' : 0.175
                                    }
-                 , 'line_params':  { 'c'     : lambda: str(random() * 0.3)
+                 , 'line_params' : { 'c'     : lambda: str(random() * 0.3)
                                    , 'lw'    : lambda: (random() * 0.05) + 0.29
                                    }
                  }
@@ -172,7 +172,7 @@ def main():
                                    , 'max_char_pts': 10
                                    }
                  , 'ax_params'   : ax_params
-                 , 'points': True
+                 , 'points'      : True
                  }
 
     if not check_params(params):
