@@ -23,16 +23,16 @@ def random_coords(x_loc, x_stretch, y_loc, y_stretch, n):
     return column_stack(xy)
 
 
-def word_points( word_len, x_loc, x_stretch, y_loc, y_stretch, min_char_pts
-               , max_char_pts):
+def word_points( word_len, x_loc, x_stretch, x_spread, y_loc, y_stretch
+               , rand_char_pts):
 
-    def coords_shift_x(mod):
-        x_shift = mod + (mod * 1.5)
+    def coords_shift_x(x_pos):
+        x_shift = x_spread(x_pos)
         return random_coords( x_loc + x_shift
                             , x_stretch
                             , y_loc
                             , y_stretch
-                            , randint(min_char_pts, max_char_pts)
+                            , rand_char_pts()
                             )
 
     return concatenate(list(map(coords_shift_x, range(word_len))))
@@ -42,15 +42,11 @@ def xy_to_coords(xy):
     return xy[:, 0], xy[:, 1]
 
 
-def interp_points(x, y):
+def interp_points(x, y, resolution=300):
     tck, u = splprep([x, y], s=0)
-    u_new  = linspace(u.min(), u.max(), 100)
+    u_new  = linspace(u.min(), u.max(), resolution)
     curve  = splev(u_new, tck, der=0)
     return curve
-
-
-def smudge(mod):
-    return ((random() - 0.5) * mod)
 
 
 def interp_word(word_len, x_loc, y_loc, char_params):
@@ -73,14 +69,14 @@ def plot_word(x, y, curve, ax, ax_params, points):
     ax.plot(curve[0], curve[1], **line_params)
 
 
-def plot_line( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_word_len
-             , max_word_len, char_params, ax_params, points):
+def plot_line( ax, x_init, x_limit, word_gap, y_loc, y_smudge, rand_word_len
+             , char_params, ax_params, points):
     x = x_init()
     while x < x_limit:
-        word_len = randint(min_word_len, max_word_len)
+        word_len = rand_word_len()
         plot_word( *interp_word( word_len
                                , x
-                               , y_loc + smudge(y_smudge)
+                               , y_loc + y_smudge()
                                , char_params
                                )
                  , ax
@@ -91,7 +87,7 @@ def plot_line( ax, x_init, x_limit, word_gap, y_loc, y_smudge, min_word_len
 
 
 def plot_page( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
-             , min_word_len, max_word_len, char_params, ax_params, points):
+             , rand_word_len, char_params, ax_params, points):
     for i in range(n_lines):
         y_loc = i * y_scale
         plot_line( ax
@@ -100,8 +96,7 @@ def plot_page( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
                  , word_gap
                  , y_loc
                  , y_smudge
-                 , min_word_len
-                 , max_word_len
+                 , rand_word_len
                  , char_params
                  , ax_params
                  , points
@@ -111,14 +106,8 @@ def plot_page( ax, n_lines, x_init, x_limit, word_gap, y_scale, y_smudge
 def check_params(params):
     return ( (params['n_lines']   > 1)     # other things can still go wrong!
            & (params['n_lines']   < 1000)
-           & (params['x_limit']   > 0)     # this is mostly to prevent inf
+           & (params['x_limit']   > 5)     # this is mostly to prevent inf
            & (params['x_limit']   < 1000)  # loops
-           & (params['min_word_len'] > 1)
-           & (params['max_word_len'] > params['min_word_len'])
-           & (params['char_params']['min_char_pts'] > 1)
-           & ( params['char_params']['max_char_pts']
-             > params['char_params']['min_char_pts']
-             )
            )
 
 
@@ -144,36 +133,38 @@ def plot_params(params, fig_params, filename):
 
 
 def main():
-    seed(2)
+    seed(1)
 
-    fig_params = { 'figsize': (5, 7.5)
-                 , 'dpi'    : 125
-                 }
-    ax_params  = { 'point_params': { 'marker': 'o'
-                                   , 'c'     : 'r'
-                                   , 's'     : 1
-                                   , 'alpha' : 0.175
-                                   }
-                 , 'line_params' : { 'c'     : lambda: str(random() * 0.3)
-                                   , 'lw'    : lambda: (random() * 0.05) + 0.29
-                                   }
-                 }
-    params     = { 'n_lines'     : 30
-                 , 'x_init'      : lambda: random() * 3.5
-                 , 'x_limit'     : 100
-                 , 'word_gap'    : lambda: 3 + (random() * 0.5)
-                 , 'y_scale'     : 6
-                 , 'y_smudge'    : 1.8
-                 , 'min_word_len': 2
-                 , 'max_word_len': 7
-                 , 'char_params' : { 'x_stretch': 1
-                                   , 'y_stretch': lambda: 2 + (random() * 3)
-                                   , 'min_char_pts': 2
-                                   , 'max_char_pts': 10
-                                   }
-                 , 'ax_params'   : ax_params
-                 , 'points'      : True
-                 }
+    fig_params   = { 'figsize'      : (5, 6.5)
+                   , 'dpi'          : 150
+                   }
+    point_params = { 'marker'       : 'o'
+                   , 'c'            : 'r'
+                   , 's'            : 0.25
+                   , 'alpha'        : 0.1
+                   }
+    line_params  = { 'c'            : lambda: str(random() * 0.3)
+                   , 'lw'           : lambda: (random() * 0.05) + 0.3
+                   }
+    ax_params    = { 'point_params' : point_params
+                   , 'line_params'  : line_params
+                   }
+    char_params  = { 'x_stretch'    : 1.25
+                   , 'x_spread'     : lambda x: x * (random() + 1.65)
+                   , 'y_stretch'    : lambda: (random() * 3) + 0.7
+                   , 'rand_char_pts': lambda: randint(2, 10)
+                   }
+    params       = { 'n_lines'      : 25
+                   , 'x_init'       : lambda: random() * 3.5
+                   , 'x_limit'      : 100
+                   , 'word_gap'     : lambda: (random() * 0.45) + 3
+                   , 'y_scale'      : 6
+                   , 'y_smudge'     : lambda: random() - 0.5
+                   , 'rand_word_len': lambda: randint(2, 7)
+                   , 'char_params'  : char_params
+                   , 'ax_params'    : ax_params
+                   , 'points'       : False
+                   }
 
     if not check_params(params):
         raise ValueError('Bad value(s) in params.')
