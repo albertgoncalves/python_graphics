@@ -172,7 +172,7 @@ def main():
                                    , 'max_char_pts': 10
                                    }
                  , 'ax_params'   : ax_params
-                 , 'points': False
+                 , 'points': True
                  }
 
     if not check_params(params):
