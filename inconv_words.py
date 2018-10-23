@@ -133,7 +133,7 @@ def plot_params(params, fig_params, filename):
 
 
 def main():
-    seed(1)
+    seed(2)
 
     fig_params   = { 'figsize'      : (5, 6.5)
                    , 'dpi'          : 150
@@ -163,7 +163,7 @@ def main():
                    , 'rand_word_len': lambda: randint(2, 7)
                    , 'char_params'  : char_params
                    , 'ax_params'    : ax_params
-                   , 'points'       : False
+                   , 'points'       : True
                    }
 
     if not check_params(params):
