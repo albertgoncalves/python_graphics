@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from numpy             import concatenate
 from numpy             import column_stack
 from numpy             import linspace
+from numpy.random      import beta
 from numpy.random      import normal
 from numpy.random      import random
 from numpy.random      import poisson
@@ -21,7 +22,7 @@ def random_coords(x_loc, x_stretch, y_loc, y_stretch, n):
     def n_coords(stretch, loc):
         return (random(n) * stretch) + loc
 
-    xy = [n_coords(x_stretch, x_loc), n_coords(y_stretch(), y_loc)]
+    xy = [n_coords(x_stretch(), x_loc), n_coords(y_stretch(), y_loc)]
     return column_stack(xy)
 
 
@@ -29,7 +30,7 @@ def word_points( word_len, x_loc, x_stretch, x_spread, y_loc, y_stretch
                , n_char_pts):
 
     def coords_shift_x(x_pos):
-        x_shift = x_spread(x_pos)
+        x_shift = x_pos * x_spread()
         return random_coords( x_loc + x_shift
                             , x_stretch
                             , y_loc
@@ -135,10 +136,10 @@ def plot_params(params, fig_params, filename):
 
 
 def main():
-    seed(2)
+    seed(1)
 
-    fig_params   = { 'figsize'     : (3, 3.65)
-                   , 'dpi'         : 150
+    fig_params   = { 'figsize'     : (3, 3.5)
+                   , 'dpi'         : 175
                    }
     point_params = { 'marker'      : 'o'
                    , 'c'           : 'r'
@@ -151,16 +152,18 @@ def main():
     ax_params    = { 'point_params': point_params
                    , 'line_params' : line_params
                    }
-    char_params  = { 'x_stretch'   : 1.25
-                   , 'x_spread'    : lambda x: x * uniform(1.65, 2.65)
+    char_params  = { 'x_stretch'   : lambda: beta( poisson(1) + 1
+                                                 , poisson(4) + 1
+                                                 ) + 1
+                   , 'x_spread'    : lambda: uniform(1.5, 2.75)
                    , 'y_stretch'   : lambda: uniform(0.7, 3.7)
-                   , 'n_char_pts'  : lambda: poisson(0.75) + 2
+                   , 'n_char_pts'  : lambda: poisson(0.1) + 2
                    }
-    params       = { 'n_lines'     : 21
+    params       = { 'n_lines'     : 20
                    , 'x_init'      : lambda: uniform(0, 3.5)
                    , 'x_limit'     : 100
-                   , 'word_gap'    : lambda: uniform(2.5, 3)
-                   , 'y_scale'     : 7
+                   , 'word_gap'    : lambda: uniform(2.15, 2.85)
+                   , 'y_scale'     : 7.25
                    , 'y_smudge'    : lambda: normal(0, 0.25)
                    , 'n_word_len'  : lambda: poisson(3) + 2
                    , 'char_params' : char_params
