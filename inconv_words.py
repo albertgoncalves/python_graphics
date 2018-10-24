@@ -7,9 +7,11 @@ import matplotlib.pyplot as plt
 from numpy             import concatenate
 from numpy             import column_stack
 from numpy             import linspace
+from numpy.random      import normal
 from numpy.random      import random
 from numpy.random      import poisson
 from numpy.random      import seed
+from numpy.random      import uniform
 from scipy.interpolate import splev
 from scipy.interpolate import splprep
 
@@ -135,31 +137,31 @@ def plot_params(params, fig_params, filename):
 def main():
     seed(2)
 
-    fig_params   = { 'figsize'     : (3.25, 2.9)
-                   , 'dpi'         : 200
+    fig_params   = { 'figsize'     : (3, 3.65)
+                   , 'dpi'         : 150
                    }
     point_params = { 'marker'      : 'o'
                    , 'c'           : 'r'
                    , 's'           : 0.25
                    , 'alpha'       : 0.1
                    }
-    line_params  = { 'c'           : lambda: str(random() * 0.3)
-                   , 'lw'          : lambda: (random() * 0.05) + 0.3
+    line_params  = { 'c'           : lambda: str(uniform(0, 0.25))
+                   , 'lw'          : lambda: uniform(0.285, 0.35)
                    }
     ax_params    = { 'point_params': point_params
                    , 'line_params' : line_params
                    }
     char_params  = { 'x_stretch'   : 1.25
-                   , 'x_spread'    : lambda x: x * (random() + 1.65)
-                   , 'y_stretch'   : lambda: (random() * 3) + 0.7
+                   , 'x_spread'    : lambda x: x * uniform(1.65, 2.65)
+                   , 'y_stretch'   : lambda: uniform(0.7, 3.7)
                    , 'n_char_pts'  : lambda: poisson(0.75) + 2
                    }
-    params       = { 'n_lines'     : 15
-                   , 'x_init'      : lambda: random() * 3.5
+    params       = { 'n_lines'     : 21
+                   , 'x_init'      : lambda: uniform(0, 3.5)
                    , 'x_limit'     : 100
-                   , 'word_gap'    : lambda: (random() * 0.5) + 2.5
+                   , 'word_gap'    : lambda: uniform(2.5, 3)
                    , 'y_scale'     : 7
-                   , 'y_smudge'    : lambda: random() - 0.5
+                   , 'y_smudge'    : lambda: normal(0, 0.25)
                    , 'n_word_len'  : lambda: poisson(3) + 2
                    , 'char_params' : char_params
                    , 'ax_params'   : ax_params
