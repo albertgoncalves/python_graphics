@@ -39,7 +39,6 @@ def rev(arr):
 
 
 def main():
-    n       = 5
     width   = 1000
     height  = 400
     scale   = (width + height) / 10
