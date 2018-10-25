@@ -7,6 +7,7 @@ from numpy             import linspace
 from numpy.random      import random
 from numpy.random      import randint
 from numpy.random      import poisson
+from numpy.random      import seed
 from scipy.interpolate import splev
 from scipy.interpolate import splprep
 
@@ -39,29 +40,35 @@ def rev(arr):
 
 
 def main():
-    width   = 1000
-    height  = 400
+    seed(1)
+    size_up = 15
+    width   = 200 * size_up
+    height  = 70  * size_up
     scale   = (width + height) / 10
-    pad     = 50
-    res     = 1000
+    lw_sc   = scale / 40
+    pad     = 100
+    res     = 500
     pts     = word_pts(lambda: poisson(0.9) + 2, randint(5, 7), scale, pad)
     x, y    = interp_points(*pts, res)
     # alphas  = rev(sorted(random(res - 1)))
-    # lws     = rev(sorted(random(res - 1) * 5))
+    lws     = rev(sorted(random(res - 1) * lw_sc))
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx     = cairo.Context(surface)
     # ctx.scale(width, height)
+
     ctx.rectangle(0, 0, width, height)
     ctx.set_source_rgb(1, 1, 1)
     ctx.fill()
 
+    ctx.set_line_cap(cairo.LINE_CAP_ROUND)
+
     for i in range(res - 1):
         ctx.move_to(x[i], y[i])
         ctx.line_to(x[i + 1], y[i + 1])
-        # ctx.set_source_rgba(0, 0, 0, alphas[i])
-        # ctx.set_line_width(lws[i])
+        ctx.set_line_width(lws[i])
+        # ctx.set_line_width(1)
         ctx.set_source_rgb(0, 0, 0)
-        ctx.set_line_width(1)
+        # ctx.set_source_rgba(0, 0, 0, alphas[i])
         ctx.stroke()
 
     surface.write_to_png('tmp/cairo_experiments.png')
