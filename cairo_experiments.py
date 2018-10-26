@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import cairo
+from math import floor
 
+import cairo
 from numpy             import linspace
 from numpy.random      import beta
 from numpy.random      import random
@@ -72,7 +73,7 @@ def interp_words(lines, res, limit, ls, h_gap, v_gap):
         while True:
             row.append(interp_points(*lines(k * h_gap(), l * v_gap()), res))
             k += 1
-            if max(row[-1][0]) > limit:
+            if min(row[-1][0]) > limit:
                 break
 
         rows.extend(row)
@@ -81,27 +82,32 @@ def interp_words(lines, res, limit, ls, h_gap, v_gap):
 
 def main():
     seed(1)
-    width  = 450
-    height = 600
-    res    = 50
-    pad    = 40
-    scale  = 8
-    lw     = 1
+    m      = 1
+    width  = floor(m * 475)
+    height = floor(m * 590)
+    pad    = floor(m * 50)
+    res    = 500
+    scale  = 9
+    lw     = 0.9
 
-    char_params = { 'n_pts' : lambda        : poisson(0.3) + 2
-                  , 'w_len' : lambda        : poisson(2) + 2
+    char_params = { 'n_pts' : lambda        : poisson(0.1) + 2
+                  , 'w_len' : lambda        : poisson(1.75) + 2
                   , 'rand_x': lambda n, i, k: ( scale
                                               * (random(n) + i + k)
                                               ) + pad
                   , 'rand_y': lambda n, l   : ( scale
-                                              * (random(n) + l)
+                                              * ( beta(1.5, 1.75, size=n)
+                                                + l
+                                                + beta(1.25, 1.25) - 0.5
+                                                )
+                                              * 0.975
                                               ) + pad
-                  , 'rand_z': lambda n      : lw * uniform(0.3, 0.6, size=n)
+                  , 'rand_z': lambda n      : lw * beta(4, 5, size=n)
                   }
-    line_params = { 'limit': (width * 0.85) - pad
-                  , 'ls'   : 19
-                  , 'h_gap': lambda: uniform(3.75, 3.85)
-                  , 'v_gap': lambda: uniform(3.5, 3.55)
+    line_params = { 'limit': width - (pad * 2.35)
+                  , 'ls'   : floor(m * 19)
+                  , 'h_gap': lambda: uniform(3.75, 3.8)
+                  , 'v_gap': lambda: uniform(3.05, 3.1)
                   }
 
     lines = lines_init(width, height, pad, scale, lw, char_params)
