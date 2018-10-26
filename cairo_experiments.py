@@ -17,13 +17,6 @@ from scipy.interpolate import splprep
 # via https://pycairo.readthedocs.io/en/latest/reference/context.html?highlight=line_to
 
 
-def interp_points(x, y, z, res):
-    tck, u = splprep([x, y, z], s=0)
-    u_new  = linspace(u.min(), u.max(), res)
-    curve  = splev(u_new, tck, der=0)
-    return curve
-
-
 def init_page(width, height):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx     = cairo.Context(surface)
@@ -37,27 +30,24 @@ def init_page(width, height):
 
 
 
-def plot_lines(ctx, res):
-    def for_xyz(x, y, z):
-        for i in range(res - 1):
-            ctx.move_to(x[i], y[i])
-            ctx.line_to(x[i + 1], y[i + 1])
-            ctx.set_line_width(z[i])
-            ctx.set_source_rgb(0, 0, 0)
-            ctx.stroke()
-
-    return for_xyz
-
-
 def word_pts(k, l, n_pts, w_len, rand_x, rand_y, rand_z):
     x, y, z = [], [], []
+    nn      = 0
     for i in range(w_len()):
         n = n_pts()
         x.extend(rand_x(n, i, k))
         y.extend(rand_y(n, l))
         z.extend(rand_z(n))
+        nn += n
 
-    return x, y, z
+    return x, y, z, nn
+
+
+def interp_points(x, y, z, nn, res):
+    tck, u = splprep([x, y, z], s=0)
+    u_new  = linspace(u.min(), u.max(), nn * res)
+    curve  = splev(u_new, tck, der=0)
+    return curve
 
 
 def lines_init(width, height, pad, scale, lw, char_params):
@@ -80,15 +70,28 @@ def interp_words(lines, res, limit, ls, h_gap, v_gap):
 
     return rows
 
+
+def plot_lines(ctx):
+    def for_xyz(x, y, z):
+        for i in range(len(x) - 1):
+            ctx.move_to(x[i], y[i])
+            ctx.line_to(x[i + 1], y[i + 1])
+            ctx.set_line_width(z[i])
+            ctx.set_source_rgb(0, 0, 0)
+            ctx.stroke()
+
+    return for_xyz
+
+
 def main():
     seed(1)
-    m      = 1
+    m      = 1.15
     width  = floor(m * 475)
     height = floor(m * 590)
     pad    = floor(m * 50)
-    res    = 500
+    res    = 25
     scale  = 9
-    lw     = 0.9
+    lw     = 1.1
 
     char_params = { 'n_pts' : lambda        : poisson(0.1) + 2
                   , 'w_len' : lambda        : poisson(1.75) + 2
@@ -104,10 +107,10 @@ def main():
                                               ) + pad
                   , 'rand_z': lambda n      : lw * beta(4, 5, size=n)
                   }
-    line_params = { 'limit': width - (pad * 2.35)
-                  , 'ls'   : floor(m * 19)
-                  , 'h_gap': lambda: uniform(3.75, 3.8)
-                  , 'v_gap': lambda: uniform(3.05, 3.1)
+    line_params = { 'limit' : width - (pad * 2.35)
+                  , 'ls'    : floor(m * 19)
+                  , 'h_gap' : lambda: uniform(3.75, 3.8)
+                  , 'v_gap' : lambda: uniform(3.05, 3.1)
                   }
 
     lines = lines_init(width, height, pad, scale, lw, char_params)
@@ -115,7 +118,7 @@ def main():
 
     surface, ctx = init_page(width, height)
     for xyz in xyzs:
-        plot_lines(ctx, res)(*xyz)
+        plot_lines(ctx)(*xyz)
 
     surface.write_to_png('tmp/cairo_experiments.png')
 
