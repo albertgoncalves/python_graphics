@@ -1,6 +1,6 @@
 # Python Graphics
 
-A slowly sprawling collection of various Python graphical libraries.
+A slowly sprawling collection of rookie experiments with various Python graphical libraries.
 
 Needed things
 ---
